@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Lankawen Yanna — Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1E2D;
+    --navy-deep:#071420;
+    --teal:#145C64;
+    --gold:#D4AF37;
+    --off-white:#F2EDE4;
+    --maroon:#7A2E2E;
+    --panel:#102838;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #123246 0%, var(--navy) 55%, var(--navy-deep) 100%);
+    color:var(--off-white);
+    font-family:'Inter',sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:2rem 1rem;
+  }
+  .board{
+    width:100%;
+    max-width:760px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:.9rem;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(2rem,5.5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-.01em;
+  }
+  h1 .accent{color:var(--gold);}
+  .sub{
+    margin-top:.9rem;
+    font-size:15px;
+    color:#B9C6CC;
+  }
+  .sub b{color:var(--off-white);font-weight:500;}
+  .flip-row{
+    display:flex;
+    justify-content:center;
+    gap:clamp(8px,2.2vw,20px);
+    margin:2.6rem 0 1.2rem;
+    flex-wrap:wrap;
+  }
+  .unit{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.6rem;
+  }
+  .flip{
+    background:var(--panel);
+    border:1px solid #1E4250;
+    border-radius:6px;
+    padding:.35rem .2rem;
+    min-width:clamp(56px,13vw,92px);
+    position:relative;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 6px 14px rgba(0,0,0,.35);
+  }
+  .flip::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;top:50%;
+    height:1px;
+    background:rgba(0,0,0,.45);
+  }
+  .digits{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:clamp(1.7rem,6.4vw,3rem);
+    color:var(--off-white);
+    letter-spacing:.02em;
+    transition:opacity .15s ease;
+  }
+  .digits.pulse{opacity:.35;}
+  .label{
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:#8FA3AC;
+  }
+  .colon{
+    align-self:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:clamp(1.4rem,4vw,2.2rem);
+    color:var(--gold);
+    padding-bottom:1.6rem;
+  }
+  .strip{
+    height:2px;
+    width:64px;
+    margin:0 auto 1.4rem;
+    background:linear-gradient(90deg, var(--maroon), var(--teal), var(--gold));
+    border-radius:2px;
+  }
+  .footer{
+    margin-top:1.6rem;
+    font-size:13px;
+    color:#7C8E96;
+  }
+  .footer span{color:var(--gold);}
+  .done{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(1.6rem,4.5vw,2.4rem);
+    color:var(--gold);
+    display:none;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .digits{transition:none;}
+  }
+</style>
+</head>
+<body>
+  <div class="board">
+    <div class="eyebrow">Departure countdown</div>
+    <h1>The Doctor <span class="accent">Will be Leaving</span> Sri Lanka</h1>
+    <div class="strip"></div>
+    <div class="sub">Counting down to <b>19 Dec 2026, 12:00 PM</b> · Sri Lanka time (GMT+5:30)</div>
+
+    <div id="live-board">
+      <div class="flip-row">
+        <div class="unit">
+          <div class="flip"><div class="digits" id="d-days">000</div></div>
+          <div class="label">Days</div>
+        </div>
+        <div class="colon">:</div>
+        <div class="unit">
+          <div class="flip"><div class="digits" id="d-hours">00</div></div>
+          <div class="label">Hours</div>
+        </div>
+        <div class="colon">:</div>
+        <div class="unit">
+          <div class="flip"><div class="digits" id="d-mins">00</div></div>
+          <div class="label">Minutes</div>
+        </div>
+        <div class="colon">:</div>
+        <div class="unit">
+          <div class="flip"><div class="digits" id="d-secs">00</div></div>
+          <div class="label">Seconds</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="done" id="done-msg">Flight day is here. Good luck, doctor.</div>
+
+    <div class="footer">Target &mdash; <span>2026-12-19T12:00:00+05:30</span></div>
+  </div>
+
+<script>
+  var TARGET = new Date("2026-12-19T12:00:00+05:30").getTime();
+
+  var elDays = document.getElementById('d-days');
+  var elHours = document.getElementById('d-hours');
+  var elMins = document.getElementById('d-mins');
+  var elSecs = document.getElementById('d-secs');
+  var board = document.getElementById('live-board');
+  var doneMsg = document.getElementById('done-msg');
+
+  var last = { d: null, h: null, m: null, s: null };
+
+  function pad(n, len){
+    n = String(n);
+    while(n.length < len){ n = '0' + n; }
+    return n;
+  }
+
+  function pulse(el, newVal, prevVal){
+    if(prevVal !== null && prevVal !== newVal){
+      el.classList.add('pulse');
+      setTimeout(function(){ el.classList.remove('pulse'); }, 150);
+    }
+    el.textContent = newVal;
+  }
+
+  function tick(){
+    var now = Date.now();
+    var diff = TARGET - now;
+
+    if(diff <= 0){
+      board.style.display = 'none';
+      doneMsg.style.display = 'block';
+      clearInterval(timer);
+      return;
+    }
+
+    var totalSeconds = Math.floor(diff / 1000);
+    var days = Math.floor(totalSeconds / 86400);
+    var hours = Math.floor((totalSeconds % 86400) / 3600);
+    var mins = Math.floor((totalSeconds % 3600) / 60);
+    var secs = totalSeconds % 60;
+
+    var dStr = pad(days, 3);
+    var hStr = pad(hours, 2);
+    var mStr = pad(mins, 2);
+    var sStr = pad(secs, 2);
+
+    pulse(elDays, dStr, last.d);
+    pulse(elHours, hStr, last.h);
+    pulse(elMins, mStr, last.m);
+    pulse(elSecs, sStr, last.s);
+
+    last = { d: dStr, h: hStr, m: mStr, s: sStr };
+  }
+
+  tick();
+  var timer = setInterval(tick, 1000);
+</script>
+</body>
+</html>
